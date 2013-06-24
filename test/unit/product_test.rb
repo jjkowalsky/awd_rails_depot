@@ -57,6 +57,8 @@ class ProductTest < ActiveSupport::TestCase
                           :image_url    => "fred.gif")
     assert !product.save
     assert_equal "has already been taken", product.errors[:title].join('; ')
+    # assert_equal product.translate('activerecord.errors.messages.taken'),
+                 # product.errors[:title].join('; ')
   end
   #. . .
   test "product is not valid without a unique title - i18n" do
@@ -69,5 +71,27 @@ class ProductTest < ActiveSupport::TestCase
                   product.errors[:title].join('; ')
   end
   #. . .
+  test "product title is valid with ten or more characters" do
+    product = Product.new(:title        => "1234567890",
+                          :description  => "yyy",
+                          :price        => 1,
+                          :image_url    => "fred.gif")
+    assert product.valid?, 'has <= 9 characters. Valid expects >= 10.'
 
+    product.title = "1234567891011"
+    assert product.valid?, 'has <= 9 characters. Valid expects >= 10.'
+  end
+    
+  test "product title is invalid with nine or fewer characters" do
+    product = Product.new(:title        => "123456789",
+                          :description  => "yyy",
+                          :price        => 1,
+                          :image_url    => "fred.gif")
+    assert product.invalid?, 'has >=10 characters. Invalid should be < 10.'
+
+    product.title = "12345"
+    assert product.invalid?, 'has >=10 characters. Invalid should be < 10.'
+  end
+  #. . .
+  #. . .
 end
